@@ -7,11 +7,14 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: testdb
+      LANG: ja_JP.UTF-8 # 追加：コンテナ内のロケール指定
+      TZ: Asia/Tokyo # タイムゾーン設定（任意）
     ports:
       - "3306:3306"
     volumes:
       # 初期化SQLスクリプトをマウント
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf # 追加：文字コード設定ファイルマウント
     command: --default-authentication-plugin=mysql_native_password
 
   # PostgreSQL 16 環境
@@ -26,15 +29,3 @@ services:
       - "5432:5432"
     volumes:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-
-  # Oracle XE 21c 環境
-  # Oracleの公式イメージはDocker Hubに存在しないため、gvenzlのイメージを使用
-  oracle:
-    image: gvenzl/oracle-xe:21-slim
-    container_name: oracle
-    environment:
-      ORACLE_PASSWORD: oracle
-    ports:
-      - "1521:1521"
-    volumes:
-      - ./oracle/init.sql:/container-entrypoint-initdb.d/init.sql
